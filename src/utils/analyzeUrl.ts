@@ -5,24 +5,19 @@ export interface AnalysisResult {
   best_practices: number;
   tech_stack: string[];
   seo_checklist: { label: string; status: "ok" | "warn" | "bad" }[];
-  suggestions: { title: string; body: string; priority: "high" | "med" | "low" }[];
+  suggestions: {
+    title: string;
+    body: string;
+    priority: "high" | "med" | "low";
+  }[];
 }
 
 export async function analyzeUrl(url: string): Promise<AnalysisResult> {
-//   let siteHtml = "";
-//   try {
-//     const siteResponse = await fetch(url);
-//     siteHtml = await siteResponse.text();
-//   } catch (error) {
-//     throw new Error(`Failed to fetch HTML from ${url}. Check your network or CORS policies.`);
-//   }
-
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const model = "gemini-2.5-flash";
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
-  // 2. Feed the raw HTML into the prompt so the model has actual data to analyze
- const prompt = `You are a website analyzer. Analyze this URL: ${url}
+  const prompt = `You are a website analyzer. Analyze this URL: ${url}
 
 Instructions:
 - Even if you don't know this exact website, analyze based on URL structure, domain name, and make reasonable educated guesses
@@ -67,7 +62,9 @@ Return ONLY this JSON structure, no markdown, no explanation:
   const data = await res.json();
 
   if (!data.candidates || data.candidates.length === 0) {
-    throw new Error("API failed to return content. Check payload or safety ratings.");
+    throw new Error(
+      "API failed to return content. Check payload or safety ratings.",
+    );
   }
 
   const text = data.candidates[0].content.parts[0].text;
