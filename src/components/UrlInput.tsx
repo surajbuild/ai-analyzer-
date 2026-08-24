@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -7,8 +7,24 @@ interface Props {
   loading: boolean;
 }
 
+const STORAGE_KEY = "ai-detective:last-url";
+
 export default function UrlInput({ onAnalyze, loading }: Props) {
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY) ?? "";
+    } catch {
+      return "";
+    }
+  });
+
+  useEffect(() => {
+    try {
+      if (url) localStorage.setItem(STORAGE_KEY, url);
+    } catch {
+      // ignore quota / privacy errors
+    }
+  }, [url]);
 
   function handleSubmit() {
     if (!url.trim()) return;
